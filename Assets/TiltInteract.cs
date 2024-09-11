@@ -4,7 +4,7 @@ public class TiltInteract : MonoBehaviour
 {
 
     public Transform cam;
-    // public Transform otherCrosshair;
+    public Transform otherCrosshair;
 
     // Start is called before the first frame update
     void Start()
@@ -16,11 +16,25 @@ public class TiltInteract : MonoBehaviour
     void Update()
     {
         Vector3 target = cam.position + cam.forward * 2;
-        transform.position = target;
-        // transform.LookAt(cam.position);
-        // otherCrosshair.position = target;
-        // otherCrosshair.LookAt(cam.position);
-        // otherCrosshair.Rotate(0, 0, -45);
-        // transform.Rotate(0, 0, -cam.rotation.eulerAngles.z);
+
+        transform.SetPositionAndRotation(target, cam.rotation);
+
+        otherCrosshair.SetPositionAndRotation(target, cam.rotation);
+        otherCrosshair.Rotate(0, 0, -45);
+
+        // rotate original crosshair when head moves accross z axis
+        transform.Rotate(0, 0, -cam.rotation.eulerAngles.z);
+
+        float angle = Quaternion.Angle(transform.rotation, otherCrosshair.rotation);
+
+        Debug.Log(angle);
+
+        if (angle < 3)
+        {
+            if (Physics.Raycast(cam.position, cam.forward, out RaycastHit hit, 5))
+            {
+                hit.transform.gameObject.SendMessage("TiltInteract");
+            }
+        }
     }
 }
